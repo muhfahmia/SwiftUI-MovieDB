@@ -11,7 +11,8 @@ import SwiftUI
 struct MovieDBApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            OnBoard()
+                .environment(\.colorScheme, .light)
         }
     }
 }
