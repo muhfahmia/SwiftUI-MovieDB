@@ -11,6 +11,8 @@ import Alamofire
 enum MovieAPI {
     case list(param: MovieListParameter)
     case detail(param: MovieDetailParameter)
+    case videos(param: MovieDetailParameter)
+    case credits(param: MovieDetailParameter)
 }
 
 extension MovieAPI: APIFactory {
@@ -25,6 +27,10 @@ extension MovieAPI: APIFactory {
             return param
         case .detail(let param):
             return param
+        case .videos(let param):
+            return param
+        case .credits(let param):
+            return param
         }
     }
     
@@ -38,6 +44,10 @@ extension MovieAPI: APIFactory {
             }
         case .detail(let param):
             return "movie/\(param.movieID)"
+        case .videos(let param):
+            return "movie/\(param.movieID)/videos"
+        case .credits(let param):
+            return "movie/\(param.movieID)/credits"
         }
     }
 

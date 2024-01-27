@@ -16,7 +16,7 @@ protocol HomeAssembler {
 extension HomeAssembler where Self: Assembler {
     
     func resolve() -> HomeView {
-        HomeView(router: resolve(), vm: resolve())
+        HomeView(vm: resolve(), router: resolve())
     }
     
     func resolve() -> HomePresenter {

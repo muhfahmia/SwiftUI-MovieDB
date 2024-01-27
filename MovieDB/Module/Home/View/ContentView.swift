@@ -11,25 +11,31 @@ struct ContentView: View {
     
     let router: HomeRouter
     
+    init(router: HomeRouter) {
+        self.router = router
+    }
+    
     var body: some View {
         TabView {
             router.routeHome()
-            .tabItem {
-                Label("Home", systemImage: "house")
-            }
-            
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
+                }
+
             router.routeWatchlist()
-            .tabItem {
-                Label("Watchlist", systemImage: "film")
-            }
+                .tabItem {
+                    Label("Watchlist", systemImage: "film.fill")
+                }
             
             router.routeUser()
-            .tabItem {
-                Label("User", systemImage: "person")
-            }
-        }
-        .onAppear {
-            UITabBar.appearance().backgroundColor = UIColor(named: "SecondaryColor")
+                .tabItem {
+                    Label("User", systemImage: "person.fill")
+                }
         }
     }
+}
+
+#Preview {
+    let assembler: Assembler = AppAssembler.shared
+    return ContentView(router: assembler.resolve())
 }

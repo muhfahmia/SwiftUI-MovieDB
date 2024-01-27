@@ -22,11 +22,23 @@ struct DefaultMovieRepository: MovieRepository {
     }
     
     func list(param: MovieListParameter) -> AnyPublisher<[Movie], Error> {
-        dataSource.list(param: param).compactMap{ $0.movies }.eraseToAnyPublisher()
+        dataSource.list(param: param).map{
+            MovieMapper.moviesMapperToDomain(movies: $0.movies)
+        }.eraseToAnyPublisher()
     }
     
     func detail(param: MovieDetailParameter) -> AnyPublisher<Movie, Error> {
-        dataSource.detail(param: param).compactMap { $0 }.eraseToAnyPublisher()
+        return dataSource.videos(param: param)
+        .flatMap{ videos in
+            return dataSource.credits(param: param)
+                .flatMap { credits in
+                    return dataSource.detail(param: param)
+                        .map { movie in
+                            MovieMapper.movieMapperToDomainWithVideoCredits(movie: movie, videos: videos.videos, casts: credits.casts)
+                        }.eraseToAnyPublisher()
+                }.eraseToAnyPublisher()
+        }.eraseToAnyPublisher()
     }
+    
     
 }

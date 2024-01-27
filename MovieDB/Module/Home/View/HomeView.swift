@@ -10,17 +10,37 @@ import Combine
 
 struct HomeView: View {
     
-    let router: HomeRouter
     @ObservedObject var vm: HomePresenter
-    @State var currentIndex: Int = 0
-    @GestureState var offset: CGFloat = 0
+    @State var tabSelected: Int = 0
+    @State var cardGeoHeight: CGFloat = 0
+    
+    let router: HomeRouter
+    private let PHContent: EdgeInsets = .init(top: 0, leading: 15, bottom: 0, trailing: 15)
+    private let tabView: [String] = ["Now Playing", "Popular", "Top Rated", "Up Coming"]
+    private let movieTypeGrid = [
+        GridItem(.fixed(200)),
+        GridItem(.fixed(200))
+    ]
+
+    var seeAllBtn: some View {
+        NavigationLink(destination: router.routeUser) {
+            HStack {
+                Text("Lihat semua")
+                    .fontCustom(size: 14)
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.white)
+                    .font(.headline)
+                    .imageScale(.small)
+            }
+        }
+    }
     
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.background
-                    .ignoresSafeArea()
+                Color.background.ignoresSafeArea()
                 VStack {
+                    //Header Home Section
                     HStack {
                         Text("Watching")
                             .foregroundStyle(Color.accentColor)
@@ -42,66 +62,83 @@ struct HomeView: View {
                                 .frame(width: 30)
                         })
                     }
-                    .padding(.top, 5)
-                    .padding(.horizontal, 15)
+                    .padding(PHContent)
                     
                     ScrollView {
-                        HStack {
-                            Text("Trending")
-                                .fontCustom(size: 26, fontWeight: .extraBold)
-                            Spacer()
+                        LazyVStack {
+                            //MovieTrending Section
+                            HStack {
+                                Text("Top 10 Trending")
+                                    .fontCustom(size: 26, fontWeight: .extraBold)
+                                Spacer()
+                            }
+                            .padding(PHContent)
                             
-                            NavigationLink(destination: router.routeUser) {
-                                HStack {
-                                    Text("Lihat semua")
-                                        .fontCustom(size: 14)
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(.white)
-                                        .font(.headline)
-                                        .imageScale(.small)
-                                }
-                            }
-                        }
-                        .padding(.top, 10)
-                        .padding(.horizontal, 20)
-                
-                        GeometryReader { proxy in
-                            let width = proxy.size.width * 0.38
-                            let spacing: CGFloat = 25
-                            HStack(spacing: spacing) {
-                                ForEach(vm.movies, id: \.id) { movie in
-                                    NavigationLink(destination: router.routeDetail(movie: movie)) {
-                                        MovieCard(movie: movie, imageHeight: 235)
-                                            .frame(width: width)
+                            GeometryReader { proxy in
+                                let width = proxy.size.width * 0.42
+                                let height = width * 1.5
+                                let spacing: CGFloat = 25
+                                ScrollView(.horizontal) {
+                                    LazyHStack(spacing: spacing) {
+                                        ForEach(vm.movies, id: \.id) { movie in
+                                            NavigationLink(destination: router.routeDetail(movie: movie)) {
+                                                MovieCard(movie: movie, imageHeight: height)
+                                                    .frame(width: width)
+                                            }
+                                            .buttonStyle(PlainButtonStyle())
+                                        }
                                     }
-                                    .buttonStyle(PlainButtonStyle())
+                                }
+                                .onAppear {
+                                    cardGeoHeight = height + 50
                                 }
                             }
-                            .padding(.horizontal, 20)
-                            .offset(x: CGFloat(currentIndex) * -width + offset)
-                            .highPriorityGesture(
-                                DragGesture()
-                                .updating($offset, body: { value, out, _ in
-                                    out = value.translation.width
-                                })
-                               .onEnded { value in
-                                   let offsetX = value.translation.width
-                                   print("offsetX: \(offsetX)")
-                                   let progress = -offsetX / width
-                                   let roundIndex = progress.rounded()
-                                   currentIndex = max(min(currentIndex + Int(roundIndex), vm.movies.count - 0), 0)
-                                   print("currentIndex: \(currentIndex)")
-                               }
-                            )
+                            .frame(height: cardGeoHeight)
+                            .padding(PHContent)
+                            
+                            //MovieType Section
+                            ScrollView(.horizontal) {
+                                HStack(spacing: 25) {
+                                    ForEach(Array(tabView.enumerated()), id: \.element) { (index, tab) in
+                                        LazyVStack {
+                                            Text("\(tab)")
+                                                .fontCustom(size: 18, fontWeight: .bold)
+//                                                .padding(.horizontal, 10)
+                                            Rectangle()
+                                                .fill(tabSelected == index ? Color.accentColor : Color.clear)
+//                                                .padding(.horizontal, 10)
+                                                .frame(height: 3)
+                                                .cornerRadius(25)
+                                        }
+                                        .onTapGesture {
+                                            tabSelected = index
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(PHContent)
+                            .padding(.top, 20)
+                            
+                            //                            LazyVGrid(columns: movieTypeGrid, spacing: 20) {
+                            //                                ForEach(vm.movieNowPlaying.value ?? [Movie](), id: \.id) { movie in
+                            //                                    Text("\(movie.title)")
+                            //                                       .frame(width: 150, height: 150, alignment: .center)
+                            //                                       .background(.blue)
+                            //                                       .cornerRadius(10)
+                            //                                       .foregroundColor(.white)
+                            //                                       .font(.title)
+                            //                               }
+                            //                           }
+                            
+                            
                         }
-                        .animation(.easeInOut, value: offset == 0)
-                        .frame(height: 280)
                         
-                        Spacer()
                     }
-                }
-                .onAppear {
-                    vm.getMovieList()
+                    .scrollIndicators(.hidden)
+                    .onAppear {
+                        vm.getMovieList()
+                        vm.getMovieListNowPlaying()
+                    }
                 }
             }
         }
@@ -112,5 +149,5 @@ struct HomeView: View {
     let assembler: Assembler = AppAssembler.shared
     let router: HomeRouter = assembler.resolve()
     let presenter: HomePresenter = assembler.resolve()
-    return HomeView(router: router, vm: presenter)
+    return HomeView(vm: presenter, router: router)
 }

@@ -28,8 +28,9 @@ struct HomeRouter {
         assembler.resolve()
     }
     
-    func routeDetail(movie: Movie) -> DetailView {
-        assembler.resolve(movie: movie)
+    func routeDetail(movie: Movie) -> some View  {
+        let detailView: DetailView = DetailView(movie: movie, vm: assembler.resolve())
+        return detailView
     }
     
 }

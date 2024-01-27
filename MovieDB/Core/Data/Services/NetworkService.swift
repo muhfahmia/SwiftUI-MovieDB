@@ -24,8 +24,8 @@ class NetworkService {
             AF.request(url, method: baseAPI.method, parameters: param)
             .validate()
             .responseString { response in
-                print("url: \(url)")
-                print("param: \(paramData)")
+//                print("url: \(url)")
+//                print("param: \(paramData)")
                 switch response.result {
                 case .success(let data):
                     let model = Mapper<T>().map(JSONString: data)

@@ -19,17 +19,18 @@ enum FontWeight: String, CaseIterable {
 struct TextDefault: ViewModifier {
     
     let size: CGFloat
-    var fontWeight: FontWeight = .regular
+    var fontWeight: FontWeight
+    var foregroundColor: Color
     
     func body(content: Content) -> some View {
         content
             .font(Font.custom(fontWeight.rawValue, size: size))
-            .foregroundStyle(.white)
+            .foregroundStyle(foregroundColor)
     }
 }
 
 extension View {
-    func fontCustom(size: CGFloat, fontWeight: FontWeight = .regular) -> some View {
-        modifier(TextDefault(size: size, fontWeight: fontWeight))
+    func fontCustom(size: CGFloat, fontWeight: FontWeight = .regular, foregroundColor: Color = .white) -> some View {
+        modifier(TextDefault(size: size, fontWeight: fontWeight, foregroundColor: foregroundColor))
     }
 }

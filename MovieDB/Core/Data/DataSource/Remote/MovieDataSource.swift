@@ -11,6 +11,8 @@ import Combine
 protocol MovieDataSource {
     func list(param: MovieListParameter) -> AnyPublisher<Movies, Error>
     func detail(param: MovieDetailParameter) -> AnyPublisher<Movie, Error>
+    func videos(param: MovieDetailParameter) -> AnyPublisher<MovieVideos, Error>
+    func credits(param: MovieDetailParameter) -> AnyPublisher<MovieCasts, Error>
 }
 
 struct DefaultMovieDataSource: MovieDataSource {
@@ -19,6 +21,15 @@ struct DefaultMovieDataSource: MovieDataSource {
     }
     
     func detail(param: MovieDetailParameter) -> AnyPublisher<Movie, Error> {
-        NetworkService.shared.request(baseAPI: MovieAPI.detail(param: param))
+        NetworkService.shared.request(baseAPI: MovieAPI.detail(param: param))   
     }
+    
+    func videos(param: MovieDetailParameter) -> AnyPublisher<MovieVideos, Error> {
+        NetworkService.shared.request(baseAPI: MovieAPI.videos(param: param))
+    }
+    
+    func credits(param: MovieDetailParameter) -> AnyPublisher<MovieCasts, Error> {
+        NetworkService.shared.request(baseAPI: MovieAPI.credits(param: param))
+    }
+    
 }

@@ -13,7 +13,7 @@ class DetailPresenter: ObservableObject {
     private var cancellables: Set<AnyCancellable> = []
     
     @Published var movie: Movie = .init()
-    @Published var movieParam: MovieDetailParameter = MovieDetailParameter(movieID: "")
+    @Published var movieParam: MovieDetailParameter = MovieDetailParameter(movieID: "181808")
     private let movieDetailUseCase: MovieDetailUseCase
     
     init(movieDetailUseCase: MovieDetailUseCase) {
@@ -25,14 +25,12 @@ class DetailPresenter: ObservableObject {
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { result in
                 switch result {
-                case .finished:
-                    print("finished")
+                case .finished: break
                 case .failure(let error):
                     print("error: \(error)")
                 }
             }, receiveValue: { [weak self] value in
                 self?.movie = value
-                print(value)
             }).store(in: &cancellables)
     }
     
